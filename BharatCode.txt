@@ -1,0 +1,47 @@
+Project: BhashaCode
+
+Category: Coding & developer tools
+
+Summary: Paste a code snippet, pick a language, get a clear plain-language
+explanation of what the code does, plus a short line-by-line breakdown.
+BhashaCode (भाषा, "language") is a small Flask web app for developers who
+read faster in their first language.
+
+Languages: English plus 9 Indian languages (hi, ta, te, bn, mr, kn, ml,
+gu, pa). Code, function names and keywords stay in English, untranslated,
+so the explanation can still be followed against the code.
+
+Author: Aarambh Maan Shrestha (GitHub: Duke2nuke)
+Repository: (to be added on push — solo entry, BharatCode Build League)
+Licence: MIT
+
+BharatCode API usage
+
+- Base URL: https://bharatcode.ai/api/model/v1
+- Default model: qwen-3.8-27b (override with BHARATCODE_MODEL)
+- Endpoint: POST /chat/completions (single-turn explain call; the Marg
+  example project uses POST /responses by default and POST
+  /chat/completions with --api chat — same base URL and model)
+- Retries 429/5xx with backoff (BharatCode returns 503 when the model
+  is busy)
+- Auth: Authorization: Bearer $BHARATCODE_API_KEY, read from the
+  environment only, never written to disk
+- No key set: the app runs in clearly labelled MOCK mode and returns a
+  local, deterministic explanation marked "MOCK — no BharatCode key
+  set, demo only". Mock results are never presented as live model
+  results.
+
+Where it is called
+
+- bharatcode_client.py   HTTP client (Chat Completions), mock fallback,
+                         language validation, prompt
+- app.py                 Flask routes: / (form), /explain (JSON + HTML),
+                         /health
+- templates/index.html   one-page form: code textarea, language
+                         dropdown, result area
+
+Source for the API details: the BharatCode Build League example project
+Marg (https://github.com/Mqhnish/marg — marg/llm.py and BharatCode.txt,
+read 2026-11-06). No standalone BharatCode API docs page was found on
+that date; bharatcode.ai confirms Qwen 3.8 27B is API-available and
+students get Qwen free up to 10M tokens a day.

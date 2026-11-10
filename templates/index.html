@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>BhashaCode — Explain code in Indian languages</title>
+  <style>
+    body { font-family: system-ui, -apple-system, sans-serif; max-width: 760px;
+           margin: 2rem auto; padding: 0 1rem; line-height: 1.5; color: #1a1a1a; }
+    h1 { font-size: 1.7rem; margin-bottom: 0.2rem; }
+    p.sub { color: #555; margin-top: 0; }
+    textarea { width: 100%; min-height: 180px; font-family: ui-monospace, monospace;
+               font-size: 0.95rem; padding: 0.6rem; box-sizing: border-box; }
+    select, button { font-size: 1rem; padding: 0.5rem 0.8rem; margin: 0.4rem 0.4rem 0.4rem 0; }
+    button { background: #0b5fff; color: #fff; border: none; border-radius: 6px; cursor: pointer; }
+    button.secondary { background: #eee; color: #222; }
+    .badge { display: inline-block; padding: 0.15rem 0.6rem; border-radius: 999px;
+             font-size: 0.85rem; font-weight: 600; }
+    .badge.mock { background: #fff3cd; color: #664d03; }
+    .badge.live { background: #d1e7dd; color: #0f5132; }
+    .error { background: #f8d7da; color: #842029; padding: 0.7rem; border-radius: 6px; }
+    .result { background: #f6f8fa; padding: 1rem; border-radius: 8px; margin-top: 1rem; }
+    table { border-collapse: collapse; width: 100%; margin-top: 0.6rem; }
+    td, th { border: 1px solid #ddd; padding: 0.45rem; vertical-align: top; text-align: left; }
+    td code { font-size: 0.9rem; }
+    footer { margin-top: 2rem; color: #666; font-size: 0.85rem; }
+  </style>
+</head>
+<body>
+  <h1>BhashaCode</h1>
+  <p class="sub">Paste code, pick a language, get a plain-language explanation.
+  Built for the BharatCode Build League — powered by the BharatCode model API
+  (qwen-3.8-27b).</p>
+
+  {% if mock_mode %}
+    <p><span class="badge mock">MOCK — no BharatCode key set, demo only</span></p>
+  {% else %}
+    <p><span class="badge live">LIVE — BharatCode API</span></p>
+  {% endif %}
+
+  {% if error %}<p class="error">{{ error }}</p>{% endif %}
+
+  <form method="post" action="/explain">
+    <label for="code"><strong>Code</strong></label><br>
+    <textarea id="code" name="code" placeholder="Paste your code here…">{{ code or '' }}</textarea><br>
+    <label for="language"><strong>Explain in</strong></label>
+    <select id="language" name="language">
+      {% for code_, name in languages.items() %}
+        <option value="{{ code_ }}" {% if language == code_ %}selected{% endif %}>{{ name }}</option>
+      {% endfor %}
+    </select>
+    <button type="submit">Explain</button>
+    <button type="button" class="secondary" onclick="document.getElementById('code').value = {{ example | tojson }};">Load example</button>
+  </form>
+
+  {% if result %}
+  <div class="result">
+    <p>
+      {% if result.mode == 'mock' %}
+        <span class="badge mock">MOCK — no BharatCode key set, demo only</span>
+      {% else %}
+        <span class="badge live">LIVE — {{ result.model }}</span>
+      {% endif %}
+      Explained in {{ result.language_name }}
+    </p>
+    <h2>What it does</h2>
+    <p>{{ result.summary }}</p>
+    {% if result.breakdown %}
+    <h2>Line by line</h2>
+    <table>
+      <tr><th>Code</th><th>What it means</th></tr>
+      {% for item in result.breakdown %}
+      <tr><td><code>{{ item.line }}</code></td><td>{{ item.explanation }}</td></tr>
+      {% endfor %}
+    </table>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  <footer>
+    BhashaCode — solo entry by Aarambh Maan Shrestha, BharatCode Build League.
+    With a <code>BHARATCODE_API_KEY</code> set, explanations come from the
+    BharatCode API; without one, the app shows an honestly labelled mock.
+  </footer>
+</body>
+</html>
